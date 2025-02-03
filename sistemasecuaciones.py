@@ -1,8 +1,11 @@
-from matplotlib import pyplot as plt
-import numpy as np
-
-
 def crear_sistema():
+    """
+    Crea un sistema de ecuaciones ingresado por el usuario.
+    
+    Retorna:
+        list: Una lista de listas que representa el sistema de ecuaciones.
+              Cada sublista contiene los coeficientes de las variables y el término independiente.
+    """
     print("Ingrese el sistema de ecuaciones")
     num_ecuaciones = int(input("Ingrese el número de ecuaciones: "))
     num_variables = int(input("Ingrese el número de variables: "))
@@ -35,6 +38,15 @@ def crear_sistema():
 
 
 def calcular_determinante(matriz):
+    """
+    Calcula el determinante de una matriz cuadrada.
+    
+    Parámetros:
+        matriz (list): Una lista de listas que representa una matriz cuadrada.
+    
+    Retorna:
+        float: El determinante de la matriz.
+    """
     n = len(matriz)
     if n == 1:
         return matriz[0][0]
@@ -56,6 +68,15 @@ def calcular_determinante(matriz):
 
 
 def obtener_matriz_inversa(matriz):
+    """
+    Calcula la matriz inversa de una matriz cuadrada.
+    
+    Parámetros:
+        matriz (list): Una lista de listas que representa una matriz cuadrada.
+    
+    Retorna:
+        list: La matriz inversa.
+    """
     n = len(matriz)
     det = calcular_determinante(matriz)
     
@@ -96,7 +117,17 @@ def obtener_matriz_inversa(matriz):
 
 
 def resolver_por_algebra_matricial(sistema):
-# Extraer la matriz de coeficientes y el vector de términos independientes
+    """
+    Resuelve un sistema de ecuaciones lineales utilizando el método de álgebra matricial.
+    
+    Parámetros:
+        sistema (list): Una lista de listas que representa el sistema de ecuaciones.
+    
+    Retorna:
+        list: Una lista con las soluciones del sistema (valores de las variables).
+              Retorna None si el sistema no tiene solución única.
+    """
+    # Extraer la matriz de coeficientes y el vector de términos independientes
     coeficientes = [ecuacion[:-1] for ecuacion in sistema]  # Excluir el término independiente
     terminos_independientes = [ecuacion[-1] for ecuacion in sistema]  # Solo el término independiente
     
@@ -133,6 +164,16 @@ def resolver_por_algebra_matricial(sistema):
 
 
 def resolver_por_crammer(sistema):
+    """
+    Resuelve un sistema de ecuaciones lineales utilizando el método de Cramer.
+    
+    Parámetros:
+        sistema (list): Una lista de listas que representa el sistema de ecuaciones.
+    
+    Retorna:
+        list: Una lista con las soluciones del sistema (valores de las variables).
+              Retorna None si el sistema no tiene solución única.
+    """
     # Extraer la matriz de coeficientes y el vector de términos independientes
     coeficientes = [ecuacion[:-1] for ecuacion in sistema]  # Excluir el término independiente
     terminos_independientes = [ecuacion[-1] for ecuacion in sistema]  # Solo el término independiente
@@ -182,6 +223,16 @@ def resolver_por_crammer(sistema):
 
 
 def resolver_por_gauss_jordan(sistema):
+    """
+    Resuelve un sistema de ecuaciones lineales utilizando el método de Gauss-Jordan.
+    
+    Parámetros:
+        sistema (list): Una lista de listas que representa el sistema de ecuaciones.
+    
+    Retorna:
+        list: Una lista con las soluciones del sistema (valores de las variables).
+              Retorna None si el sistema no tiene solución única.
+    """
     n = len(sistema)
     
     # Crear la matriz aumentada
@@ -238,93 +289,57 @@ def resolver_por_gauss_jordan(sistema):
     return soluciones
 
 
-sistema = []
-opcion = 0
-try:
+# Menú principal
+categoria = 0
+sistema = []  # Variable para almacenar el sistema de ecuaciones
+
+while categoria != 5:
+    print("\n1. Crear sistema de ecuaciones")
+    print("2. Resolver por método de Crammer")
+    print("3. Resolver por el método de algebra matricial")
+    print("4. Resolver por el método de Gauss-Jordan")
+    print("5. Salir")
+    categoria = int(input("Ingresa la opción: "))
     
-    while opcion!= 3:
-        print("")
-        print("1. Modelar funciones matemáticas")
-        print("2. Resolver sistemas de ecuaciones")
-        print("3. Salir")
-        print("")
-        opcion = int(input("Ingrese la opción a realizar:  "))
-
-
-
-        match opcion:
-            case 1:
-                print("Modelar funciones")
-
-            case 2:
-                categoria=0
-                while categoria!=5:
-                     
-                    print("\n1. Crear sistema de ecuaciones")
-                    print("2. Resolver por método de Crammer")
-                    print("3. Resolver por el método de algebra matricial")
-                    print("4. Resolver por el método de Gauss-Jordan")
-                    print("5. Salir")
-                    categoria = int(input("Ingresa la opción: "))
-                    
-                    match categoria:
-                        case 1:
-                            sistema = crear_sistema()  # Llamada a la función para crear el sistema
-                        
-                        case 2:
-                            if sistema:  # Verifica si el sistema ha sido creado
-                                print("\nResolviendo por el método de Crammer...")
-                                soluciones = resolver_por_crammer(sistema)
-                                if soluciones:
-                                    print("\nSoluciones encontradas:")
-                                    for i, solucion in enumerate(soluciones):
-                                        print(f"x{i + 1} = {solucion:.2f}")
-                            else:
-                                print("Primero debes crear un sistema de ecuaciones.")
-                        
-                        case 3:
-                            if sistema:  # Verifica si el sistema ha sido creado
-                                print("\nResolviendo por el método de álgebra matricial...")
-                                soluciones = resolver_por_algebra_matricial(sistema)
-                                if soluciones:
-                                    print("\nSoluciones encontradas:")
-                                    for i, solucion in enumerate(soluciones):
-                                        print(f"x{i + 1} = {solucion:.2f}")
-                            else:
-                                print("Primero debes crear un sistema de ecuaciones.")
-                        
-                        case 4:
-                            if sistema:  # Verifica si el sistema ha sido creado
-                                print("\nResolviendo por el método de Gauss-Jordan...")
-                                soluciones = resolver_por_gauss_jordan(sistema)
-                                if soluciones:
-                                    print("\nSoluciones encontradas:")
-                                    for i, solucion in enumerate(soluciones):
-                                        print(f"x{i + 1} = {solucion:.2f}")
-                            else:
-                                print("Primero debes crear un sistema de ecuaciones.")
-                        
-                        case 5:
-                            print("Saliendo del programa...")
-                        
-                        case _:
-                            print("Opción no válida. Intente de nuevo.")
-                        
-
-
-    
-
-##Errores
-except ValueError:
-    print("Error al convertir")
-except ZeroDivisionError:
-    print("No se puede dividir entre 0")
-except Exception as e:                      ## e es una variabe y contiene los errores  ## Exception es una excepcion generica de error
-    print(f"Ha ocurrido un error inesperado {e}")       #Except son obligatorios
-else:
-    print("")                           ## Si es exitoso hace eso
-
-finally:                                        ##No importa si es exitoso o no va a hacer algo
-    print("")
-    print("Programa terminado")
-    print("")
+    match categoria:
+        case 1:
+            sistema = crear_sistema()  # Llamada a la función para crear el sistema
+        
+        case 2:
+            if sistema:  # Verifica si el sistema ha sido creado
+                print("\nResolviendo por el método de Crammer...")
+                soluciones = resolver_por_crammer(sistema)
+                if soluciones:
+                    print("\nSoluciones encontradas:")
+                    for i, solucion in enumerate(soluciones):
+                        print(f"x{i + 1} = {solucion:.2f}")
+            else:
+                print("Primero debes crear un sistema de ecuaciones.")
+        
+        case 3:
+            if sistema:  # Verifica si el sistema ha sido creado
+                print("\nResolviendo por el método de álgebra matricial...")
+                soluciones = resolver_por_algebra_matricial(sistema)
+                if soluciones:
+                    print("\nSoluciones encontradas:")
+                    for i, solucion in enumerate(soluciones):
+                        print(f"x{i + 1} = {solucion:.2f}")
+            else:
+                print("Primero debes crear un sistema de ecuaciones.")
+        
+        case 4:
+            if sistema:  # Verifica si el sistema ha sido creado
+                print("\nResolviendo por el método de Gauss-Jordan...")
+                soluciones = resolver_por_gauss_jordan(sistema)
+                if soluciones:
+                    print("\nSoluciones encontradas:")
+                    for i, solucion in enumerate(soluciones):
+                        print(f"x{i + 1} = {solucion:.2f}")
+            else:
+                print("Primero debes crear un sistema de ecuaciones.")
+        
+        case 5:
+            print("Saliendo del programa...")
+        
+        case _:
+            print("Opción no válida. Intente de nuevo.")
