@@ -2,19 +2,29 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 
+### FUNCIONES ÁLGEBRA
+
 def crear_sistema():
-    print("Ingrese el sistema de ecuaciones")
-    num_ecuaciones = int(input("Ingrese el número de ecuaciones: "))
-    num_variables = int(input("Ingrese el número de variables: "))
+    print("Ingrese el sistema de ecuaciones 3x3")
     
     sistema = []
-    for i in range(num_ecuaciones):
+    for i in range(3):
         ecuacion = []
         print(f"\nIngrese los coeficientes de la ecuación {i + 1}:")
-        for j in range(num_variables):
-            coeficiente = float(input(f"Coeficiente de x{j + 1}: "))
+        for j in range(3):
+            while True:
+                try:
+                    coeficiente = float(input(f"Coeficiente de x{j + 1}: "))
+                    break
+                except ValueError:
+                    print("Error: Ingrese un número válido.")
             ecuacion.append(coeficiente)
-        termino_independiente = float(input("Ingrese el término independiente: "))
+        while True:
+            try:
+                termino_independiente = float(input("Ingrese el término independiente: "))
+                break
+            except ValueError:
+                print("Error: Ingrese un número válido.")
         ecuacion.append(termino_independiente)
         sistema.append(ecuacion)
     
@@ -34,6 +44,7 @@ def crear_sistema():
     return sistema
 
 
+
 def calcular_determinante(matriz):
     n = len(matriz)
     if n == 1:
@@ -41,7 +52,7 @@ def calcular_determinante(matriz):
     elif n == 2:
         return matriz[0][0] * matriz[1][1] - matriz[0][1] * matriz[1][0]
     elif n == 3:
-        # Regla de Sarrus para matrices 3x3
+        # SARRUS
         det = (
             matriz[0][0] * matriz[1][1] * matriz[2][2]
             + matriz[0][1] * matriz[1][2] * matriz[2][0]
@@ -52,24 +63,22 @@ def calcular_determinante(matriz):
         )
         return det
     else:
-        raise ValueError("El método de álgebra matricial solo es válido para sistemas 2x2 o 3x3.")
+        print("Error: El método de álgebra matricial solo es válido para sistemas 2x2 o 3x3.")
+        return None
+
 
 
 def obtener_matriz_inversa(matriz):
     n = len(matriz)
     det = calcular_determinante(matriz)
     
-    if det == 0:
-        raise ValueError("La matriz no tiene inversa (determinante = 0).")
+    if det is None:
+        return None
     
-    if n == 2:
-        # Matriz inversa para 2x2
-        a, b = matriz[0][0], matriz[0][1]
-        c, d = matriz[1][0], matriz[1][1]
-        inversa = [
-            [d / det, -b / det],
-            [-c / det, a / det]
-        ]
+    if det == 0:
+        print("Error: La matriz no tiene inversa (determinante = 0).")
+        return None
+        
     elif n == 3:
         # Matriz inversa para 3x3
         # Calculamos la matriz de cofactores
@@ -84,19 +93,26 @@ def obtener_matriz_inversa(matriz):
                 fila_cofactores.append(cofactor)
             cofactores.append(fila_cofactores)
         
-        # Matriz adjunta (transpuesta de la matriz de cofactores)
-        adjunta = list(map(list, zip(*cofactores)))
+        # Calcular la matriz adjunta (transpuesta de la matriz de cofactores)
+        adjunta = []
+        for j in range(n):  # Iterar sobre columnas
+            fila_adjunta = []
+            for i in range(n):  # Iterar sobre filas
+                fila_adjunta.append(cofactores[i][j])  # Transponer: intercambiar filas y columnas
+            adjunta.append(fila_adjunta)
         
         # Matriz inversa: adjunta dividida por el determinante
         inversa = [[adjunta[i][j] / det for j in range(n)] for i in range(n)]
     else:
-        raise ValueError("El método de álgebra matricial solo es válido para sistemas 2x2 o 3x3.")
+        print("Error: El método de álgebra matricial solo es válido para sistemas 2x2 o 3x3.")
+        return None
     
     return inversa
 
 
+
 def resolver_por_algebra_matricial(sistema):
-# Extraer la matriz de coeficientes y el vector de términos independientes
+    # Extraer la matriz de coeficientes y el vector de términos independientes
     coeficientes = [ecuacion[:-1] for ecuacion in sistema]  # Excluir el término independiente
     terminos_independientes = [ecuacion[-1] for ecuacion in sistema]  # Solo el término independiente
     
@@ -108,22 +124,23 @@ def resolver_por_algebra_matricial(sistema):
     print(terminos_independientes)
     
     # Obtener la matriz inversa de los coeficientes
-    try:
-        print("\nPaso 2: Calcular la inversa de la matriz A (A⁻¹)")
-        inversa = obtener_matriz_inversa(coeficientes)
-        print("Matriz inversa (A⁻¹):")
-        for fila in inversa:
-            print(fila)
-    except ValueError as e:
-        print(e)
+    print("\nPaso 2: Calcular la inversa de la matriz A (A⁻¹)")
+    inversa = obtener_matriz_inversa(coeficientes)
+    if inversa is None:
         return None
+    
+    print("Matriz inversa (A⁻¹):")
+    for fila in inversa:
+        print(fila)
     
     # Multiplicar la matriz inversa por el vector de términos independientes
     print("\nPaso 3: Multiplicar A⁻¹ por B para obtener X")
     soluciones = []
     n = len(inversa)
     for i in range(n):
-        solucion = sum(inversa[i][j] * terminos_independientes[j] for j in range(n))
+        solucion = 0  # Inicializar la suma
+        for j in range(n):
+            solucion += inversa[i][j] * terminos_independientes[j]  # Sumar manualmente
         soluciones.append(solucion)
     
     print("Vector de soluciones (X):")
@@ -147,6 +164,9 @@ def resolver_por_crammer(sistema):
     # Calcular el determinante de la matriz de coeficientes
     print("\nPaso 2: Calcular el determinante de A (det(A))")
     det_A = calcular_determinante(coeficientes)
+    if det_A is None:
+        return None
+    
     print(f"det(A) = {det_A}")
     
     if det_A == 0:
@@ -171,6 +191,9 @@ def resolver_por_crammer(sistema):
         for fila in matriz_temp:
             print(fila)
         det_temp = calcular_determinante(matriz_temp)
+        if det_temp is None:
+            return None
+        
         print(f"det(A{i + 1}) = {det_temp}")
         
         # Calcular la solución para la variable i
@@ -181,11 +204,17 @@ def resolver_por_crammer(sistema):
     return soluciones
 
 
+
 def resolver_por_gauss_jordan(sistema):
     n = len(sistema)
     
     # Crear la matriz aumentada
-    matriz_aumentada = [fila.copy() for fila in sistema]
+    matriz_aumentada = []
+    for fila in sistema:
+        nueva_fila = []  # Crear una nueva fila
+        for elemento in fila:
+            nueva_fila.append(elemento)  # Copiar cada elemento de la fila
+        matriz_aumentada.append(nueva_fila)  # Agregar la nueva fila a la matriz aumentada
     
     print("\nPaso 1: Escribir el sistema en forma de matriz aumentada [A | B]")
     print("Matriz aumentada:")
@@ -237,94 +266,59 @@ def resolver_por_gauss_jordan(sistema):
     
     return soluciones
 
+### CÓDIGO
 
-sistema = []
 opcion = 0
 try:
-    
-    while opcion!= 3:
-        print("")
-        print("1. Modelar funciones matemáticas")
+    while opcion != 3:
+        print("\n1. Modelar funciones matemáticas")
         print("2. Resolver sistemas de ecuaciones")
         print("3. Salir")
-        print("")
-        opcion = int(input("Ingrese la opción a realizar:  "))
-
-
+        opcion = int(input("Ingrese la opción a realizar: "))
 
         match opcion:
             case 1:
                 print("Modelar funciones")
-
             case 2:
-                categoria=0
-                while categoria!=5:
-                     
+                categoria = 0
+                while categoria != 5:
                     print("\n1. Crear sistema de ecuaciones")
                     print("2. Resolver por método de Crammer")
-                    print("3. Resolver por el método de algebra matricial")
+                    print("3. Resolver por el método de álgebra matricial")
                     print("4. Resolver por el método de Gauss-Jordan")
                     print("5. Salir")
                     categoria = int(input("Ingresa la opción: "))
                     
                     match categoria:
                         case 1:
-                            sistema = crear_sistema()  # Llamada a la función para crear el sistema
-                        
+                            sistema = crear_sistema()
                         case 2:
-                            if sistema:  # Verifica si el sistema ha sido creado
-                                print("\nResolviendo por el método de Crammer...")
+                            if sistema:
                                 soluciones = resolver_por_crammer(sistema)
-                                if soluciones:
-                                    print("\nSoluciones encontradas:")
-                                    for i, solucion in enumerate(soluciones):
-                                        print(f"x{i + 1} = {solucion:.2f}")
                             else:
                                 print("Primero debes crear un sistema de ecuaciones.")
-                        
                         case 3:
-                            if sistema:  # Verifica si el sistema ha sido creado
-                                print("\nResolviendo por el método de álgebra matricial...")
+                            if sistema:
                                 soluciones = resolver_por_algebra_matricial(sistema)
-                                if soluciones:
-                                    print("\nSoluciones encontradas:")
-                                    for i, solucion in enumerate(soluciones):
-                                        print(f"x{i + 1} = {solucion:.2f}")
                             else:
                                 print("Primero debes crear un sistema de ecuaciones.")
-                        
                         case 4:
-                            if sistema:  # Verifica si el sistema ha sido creado
-                                print("\nResolviendo por el método de Gauss-Jordan...")
+                            if sistema:
                                 soluciones = resolver_por_gauss_jordan(sistema)
-                                if soluciones:
-                                    print("\nSoluciones encontradas:")
-                                    for i, solucion in enumerate(soluciones):
-                                        print(f"x{i + 1} = {solucion:.2f}")
                             else:
                                 print("Primero debes crear un sistema de ecuaciones.")
-                        
                         case 5:
                             print("Saliendo del programa...")
-                        
                         case _:
                             print("Opción no válida. Intente de nuevo.")
-                        
+            case 3:
+                print("Saliendo del programa...")
 
-
-    
-
-##Errores
 except ValueError:
-    print("Error al convertir")
+    print("Error: Ingrese un número válido.")
 except ZeroDivisionError:
-    print("No se puede dividir entre 0")
-except Exception as e:                      ## e es una variabe y contiene los errores  ## Exception es una excepcion generica de error
-    print(f"Ha ocurrido un error inesperado {e}")       #Except son obligatorios
-else:
-    print("")                           ## Si es exitoso hace eso
-
-finally:                                        ##No importa si es exitoso o no va a hacer algo
-    print("")
-    print("Programa terminado")
-    print("")
+    print("Error: No se puede dividir entre 0.")
+except Exception as e:
+    print(f"Ha ocurrido un error inesperado: {e}")
+finally:
+    print("\nPrograma terminado")
