@@ -2,7 +2,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 
-### FUNCIONES ÁLGEBRA
+### FUNCIONES DE SISTEMAS DE ECUACIONES 3x3
 
 def crear_sistema():
     print("Ingrese el sistema de ecuaciones 3x3")
@@ -47,12 +47,8 @@ def crear_sistema():
 
 def calcular_determinante(matriz):
     n = len(matriz)
-    if n == 1:
-        return matriz[0][0]
-    elif n == 2:
-        return matriz[0][0] * matriz[1][1] - matriz[0][1] * matriz[1][0]
-    elif n == 3:
-        # SARRUS
+    if n == 3:
+        # REGLA DE SARRUS
         det = (
             matriz[0][0] * matriz[1][1] * matriz[2][2]
             + matriz[0][1] * matriz[1][2] * matriz[2][0]
@@ -62,16 +58,14 @@ def calcular_determinante(matriz):
             - matriz[0][1] * matriz[1][0] * matriz[2][2]
         )
         return det
-    else:
-        print("Error: El método de álgebra matricial solo es válido para sistemas 2x2 o 3x3.")
-        return None
+
 
 
 
 def obtener_matriz_inversa(matriz):
     n = len(matriz)
     det = calcular_determinante(matriz)
-    
+
     if det is None:
         return None
     
@@ -81,7 +75,6 @@ def obtener_matriz_inversa(matriz):
         
     elif n == 3:
         # Matriz inversa para 3x3
-        # Calculamos la matriz de cofactores
         cofactores = []
         for i in range(n):
             fila_cofactores = []
@@ -112,7 +105,7 @@ def obtener_matriz_inversa(matriz):
 
 
 def resolver_por_algebra_matricial(sistema):
-    # Extraer la matriz de coeficientes y el vector de términos independientes
+    # EXTRAER MATRIZ X (COEFICIENTES) Y VECTOR DE TERMINOS INDEPENDIENTES
     coeficientes = [ecuacion[:-1] for ecuacion in sistema]  # Excluir el término independiente
     terminos_independientes = [ecuacion[-1] for ecuacion in sistema]  # Solo el término independiente
     
@@ -155,7 +148,7 @@ def resolver_por_crammer(sistema):
     terminos_independientes = [ecuacion[-1] for ecuacion in sistema]  # Solo el término independiente
     
     print("\nPaso 1: Escribir el sistema en forma matricial AX = B")
-    print("Matriz de coeficientes (A):")
+    print("\nMatriz de coeficientes (A):")
     for fila in coeficientes:
         print(fila)
     print("Vector de términos independientes (B):")
@@ -189,7 +182,7 @@ def resolver_por_crammer(sistema):
         # Calcular el determinante de la matriz modificada
         print(f"Matriz modificada para x{i + 1}:")
         for fila in matriz_temp:
-            print(fila)
+            print(f"\n{fila}")
         det_temp = calcular_determinante(matriz_temp)
         if det_temp is None:
             return None
@@ -211,7 +204,7 @@ def resolver_por_gauss_jordan(sistema):
     # Crear la matriz aumentada
     matriz_aumentada = []
     for fila in sistema:
-        nueva_fila = []  # Crear una nueva fila
+        nueva_fila = []  
         for elemento in fila:
             nueva_fila.append(elemento)  # Copiar cada elemento de la fila
         matriz_aumentada.append(nueva_fila)  # Agregar la nueva fila a la matriz aumentada
@@ -269,8 +262,8 @@ def resolver_por_gauss_jordan(sistema):
 ### CÓDIGO
 
 opcion = 0
-try:
-    while opcion != 3:
+while opcion != 3:
+    try:
         print("\n1. Modelar funciones matemáticas")
         print("2. Resolver sistemas de ecuaciones")
         print("3. Salir")
@@ -312,13 +305,13 @@ try:
                         case _:
                             print("Opción no válida. Intente de nuevo.")
             case 3:
-                print("Saliendo del programa...")
+                print("\nPrograma terminado, Adiós!")
+            case _:
+                print("Opción no válida. Intente de nuevo.")
 
-except ValueError:
-    print("Error: Ingrese un número válido.")
-except ZeroDivisionError:
-    print("Error: No se puede dividir entre 0.")
-except Exception as e:
-    print(f"Ha ocurrido un error inesperado: {e}")
-finally:
-    print("\nPrograma terminado")
+    except ValueError:
+        print("\nError: Ingrese un número válido.")
+    except ZeroDivisionError:
+        print("\nError: No se puede dividir entre 0.")
+    except Exception as e:
+        print(f"\nHa ocurrido un error inesperado: {e}")
