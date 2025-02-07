@@ -32,7 +32,7 @@ def graficar_funcion():
 
     expresion = input("Ingrese la función cúbica en términos de x (ejemplo: x**3 + 2*x - 1): ")
     
-    x = [i for i in range(-20, 20)]  # Rango de valores de x de -10 a 10
+    x = [i for i in range(-20, 20)]  # Rango de valores de x 
     y = [evaluar_funcion(expresion, x) for x in x]  # Evaluación manual
     
     plt.figure(figsize=(8, 5))
