@@ -3,53 +3,42 @@ import numpy as np
 
 
 ### FUNCIONES ÁLGEBRA
-def evaluar_funcion(expresion, x):
-    """
-    Evalúa una función matemática dada como string sin usar funciones predefinidas.
-    Solo permite operaciones básicas y exponentes.
-    """
-    operadores = {'+': lambda a, b: a + b, 
-                  '-': lambda a, b: a - b, 
-                  '*': lambda a, b: a * b, 
-                  '/': lambda a, b: a / b, 
-                  '**': lambda a, b: a ** b}
-    
-    expresion = expresion.replace("x", str(x))
-    
-    elementos = expresion.split()
-    resultado = float(elementos[0])
+def graficar_funciones():
+    try:
+        while True:
+            num_funciones = int(input("¿Cuántas funciones deseas graficar? (mínimo 1, máximo 3): "))
+            
+            if num_funciones < 1 or num_funciones > 3:
+                print("Debes ingresar un número entre 1 y 3.")
+            else:
+                break
+                return
+        
+        funciones = []  
 
-    i = 1
-    while i < len(elementos):
-        operador = elementos[i]
-        numero = float(elementos[i + 1])
-        if operador in operadores:
-            resultado = operadores[operador](resultado, numero)
-        i += 2
+        for i in range(num_funciones):
+            expresion = input(f"Ingrese la función {i+1} en términos de x (ejemplo: x**2 + 2*x - 3): ")
+            funciones.append(expresion)
 
-    return resultado
-def graficar_funcion():
+        x = np.linspace(-10, 10, 400)  
 
-    expresion = input("Ingrese la función cúbica en términos de x (ejemplo: x**3 + 2*x - 1): ")
-    
-    x = [i for i in range(-20, 20)]  # Rango de valores de x 
-    y = [evaluar_funcion(expresion, x) for x in x]  # Evaluación manual
-    
-    plt.figure(figsize=(8, 5))
-    plt.plot(x, y, label=f"f(x) = {expresion}", color="blue")
-    plt.axhline(0, color='black', linewidth=0.5)  # Eje X
-    plt.axvline(0, color='black', linewidth=0.5)  # Eje Y
-    plt.grid(True, linestyle="--", linewidth=0.5)
-    plt.legend()
-    plt.title("Gráfico de la función cúbica")
-    plt.xlabel("x")
-    plt.ylabel("f(x)")
-    plt.show()
+        for i in range(3):
+            if i < num_funciones: 
+                y = [eval(funciones[i], {"x": val, "np": np}) for val in x]
 
+                plt.figure(figsize=(8, 5))
+                plt.plot(x, y, label=f"f(x) = {funciones[i]}", color=np.random.rand(3,)) 
+                plt.axhline(0, color='black', linewidth=0.5) 
+                plt.axvline(0, color='black', linewidth=0.5)  
+                plt.grid(True, linestyle="--", linewidth=0.5)
+                plt.legend()
+                plt.title(f"Gráfico {i+1}")
+                plt.xlabel("x")
+                plt.ylabel("f(x)")
+                plt.show()
 
-
-
-
+    except Exception as e:
+        print(f"Error al graficar la función: {e}")
 
 def crear_sistema():
     print("Ingrese el sistema de ecuaciones 3x3")
@@ -325,7 +314,7 @@ try:
 
         match opcion:
             case 1:
-                graficar_funcion()
+                graficar_funciones()
             case 2:
                 categoria = 0
                 while categoria != 5:
