@@ -1,8 +1,9 @@
 from matplotlib import pyplot as plt
 import numpy as np
 
+### FUNCIONES MATEMÀTICAS
 
-### FUNCIONES ÁLGEBRA
+
 def graficar_funciones():
     try:
         while True:
@@ -14,35 +15,44 @@ def graficar_funciones():
                 break
                 return
         
-        funciones = []  
+        funciones = []  # Lista para almacenar las expresiones ingresadas
 
         for i in range(num_funciones):
             expresion = input(f"Ingrese la función {i+1} en términos de x (ejemplo: x**2 + 2*x - 3): ")
             funciones.append(expresion)
 
-        x = np.linspace(-10, 10, 400)  
+        x = np.linspace(-10, 10, 400)  # Rango de valores para x
+        
+        # Crear una figura con 3 subgráficos en una columna
+        fig, axes = plt.subplots(3, 1, figsize=(8, 12))  # 3 filas, 1 columna
 
-        for i in range(3):
-            if i < num_funciones: 
-                y = [eval(funciones[i], {"x": val, "np": np}) for val in x]
+        # Dibujar cada función en un subgráfico diferente
+        colores = ['blue', 'red', 'green']  # Colores para cada gráfica
+        
+        for i in range(num_funciones):
+            y = [eval(funciones[i], {"x": val, "np": np}) for val in x]
+            axes[i].plot(x, y, color=colores[i], label=f"f(x) = {funciones[i]}")
+            axes[i].axhline(0, color='black', linewidth=0.5)  # Eje X
+            axes[i].axvline(0, color='black', linewidth=0.5)  # Eje Y
+            axes[i].grid(True, linestyle="--", linewidth=0.5)
+            axes[i].legend()
+            axes[i].set_title(f"Gráfico {i+1}")
+            axes[i].set_xlabel("x")
+            axes[i].set_ylabel("f(x)")
 
-                plt.figure(figsize=(8, 5))
-                plt.plot(x, y, label=f"f(x) = {funciones[i]}", color=np.random.rand(3,)) 
-                plt.axhline(0, color='black', linewidth=0.5) 
-                plt.axvline(0, color='black', linewidth=0.5)  
-                plt.grid(True, linestyle="--", linewidth=0.5)
-                plt.legend()
-                plt.title(f"Gráfico {i+1}")
-                plt.xlabel("x")
-                plt.ylabel("f(x)")
-                plt.show()
+        # Ajustar la disposición de los gráficos
+        plt.tight_layout()
+        plt.show()
 
+    except ValueError:
+        print("Error, ingrese un número")
     except Exception as e:
         print(f"Error al graficar la función: {e}")
 
+### FUNCIONES ÁLGEBRA
+
 def crear_sistema():
     print("Ingrese el sistema de ecuaciones 3x3")
-    
     sistema = []
     for i in range(3):
         ecuacion = []
@@ -64,6 +74,7 @@ def crear_sistema():
         ecuacion.append(termino_independiente)
         sistema.append(ecuacion)
     
+    # CONVERSIÖN A CADENA DE TEXTO
     print("\nSistema de ecuaciones ingresado:")
     for ecuacion in sistema:
         ecuacion_str = ""
@@ -98,11 +109,29 @@ def calcular_determinante(matriz):
             - matriz[0][1] * matriz[1][0] * matriz[2][2]
         )
         return det
-    else:
-        print("Error: El método de álgebra matricial solo es válido para sistemas 2x2 o 3x3.")
-        return None
 
-
+def calcular_matriz_adjunta(matriz):
+    n = len(matriz)
+    cofactores = []
+    for i in range(n):
+        fila_cofactores = []
+        for j in range(n):
+            # Matriz menor (eliminamos la fila i y la columna j)
+            menor = [fila[:j] + fila[j + 1:] for fila in (matriz[:i] + matriz[i + 1:])]
+            # Cofactor: (-1)^(i+j) * determinante del menor
+            cofactor = ((-1) ** (i + j)) * calcular_determinante(menor)
+            fila_cofactores.append(cofactor)
+        cofactores.append(fila_cofactores)
+    
+    # CALCULAR MATRIZ ADJUNTA
+    adjunta = []
+    for j in range(n):  
+        fila_adjunta = []
+        for i in range(n):  
+            fila_adjunta.append(cofactores[i][j])  # TRASPONER: INTERCARMBIAR FILAS POR COLUMNAS
+        adjunta.append(fila_adjunta)
+    
+    return adjunta
 
 def obtener_matriz_inversa(matriz):
     n = len(matriz)
@@ -116,25 +145,22 @@ def obtener_matriz_inversa(matriz):
         return None
         
     elif n == 3:
-        # Matriz inversa para 3x3
-        # Calculamos la matriz de cofactores
+        # INVERSA
         cofactores = []
         for i in range(n):
             fila_cofactores = []
             for j in range(n):
-                # Matriz menor (eliminamos la fila i y la columna j)
                 menor = [fila[:j] + fila[j + 1:] for fila in (matriz[:i] + matriz[i + 1:])]
-                # Cofactor: (-1)^(i+j) * determinante del menor
                 cofactor = ((-1) ** (i + j)) * calcular_determinante(menor)
                 fila_cofactores.append(cofactor)
             cofactores.append(fila_cofactores)
         
-        # Calcular la matriz adjunta (transpuesta de la matriz de cofactores)
+        # CALCULAR ADJUNTA
         adjunta = []
-        for j in range(n):  # Iterar sobre columnas
+        for j in range(n): 
             fila_adjunta = []
-            for i in range(n):  # Iterar sobre filas
-                fila_adjunta.append(cofactores[i][j])  # Transponer: intercambiar filas y columnas
+            for i in range(n):  
+                fila_adjunta.append(cofactores[i][j])  # TRASPONER
             adjunta.append(fila_adjunta)
         
         # Matriz inversa: adjunta dividida por el determinante
@@ -148,62 +174,72 @@ def obtener_matriz_inversa(matriz):
 
 
 def resolver_por_algebra_matricial(sistema):
-    # Extraer la matriz de coeficientes y el vector de términos independientes
-    coeficientes = [ecuacion[:-1] for ecuacion in sistema]  # Excluir el término independiente
-    terminos_independientes = [ecuacion[-1] for ecuacion in sistema]  # Solo el término independiente
+    # EXTRAER MATRIZ DE COEFICIENTES Y VECTOR DE TERMINOS INDEPENDIETES
+    coeficientes = [ecuacion[:-1] for ecuacion in sistema]  # TERMINO INDEPENDIENTE
+    terminos_independientes = [[ecuacion[-1]] for ecuacion in sistema]  # CONVERSIÖN DE MATRIZ FILA A MATRIZ COLUMNA
     
     print("\nPaso 1: Escribir el sistema en forma matricial AX = B")
     print("Matriz de coeficientes (A):")
     for fila in coeficientes:
         print(fila)
-    print("Vector de términos independientes (B):")
-    print(terminos_independientes)
+    print("\nVector de términos independientes (B):")
+    for fila in terminos_independientes:
+        print(fila)
     
-    # Obtener la matriz inversa de los coeficientes
-    print("\nPaso 2: Calcular la inversa de la matriz A (A⁻¹)")
+    print("\nPaso 2: Calcular la matriz adjunta de A (Adj(A))")
+    adjunta = calcular_matriz_adjunta(coeficientes)
+    if adjunta is None:
+        return None
+    
+    print("\nMatriz adjunta (Adj(A)):")
+    for fila in adjunta:
+        print(fila)
+    
+    print("\nPaso 3: Calcular la inversa de la matriz A (A⁻¹)")
     inversa = obtener_matriz_inversa(coeficientes)
     if inversa is None:
         return None
     
-    print("Matriz inversa (A⁻¹):")
+    print("\nMatriz inversa (A⁻¹):")
     for fila in inversa:
         print(fila)
     
-    # Multiplicar la matriz inversa por el vector de términos independientes
-    print("\nPaso 3: Multiplicar A⁻¹ por B para obtener X")
+    print("\nPaso 4: Multiplicar A⁻¹ por B para obtener X")
     soluciones = []
     n = len(inversa)
     for i in range(n):
-        solucion = 0  # Inicializar la suma
+        solucion = 0  
         for j in range(n):
-            solucion += inversa[i][j] * terminos_independientes[j]  # Sumar manualmente
-        soluciones.append(solucion)
+            solucion += inversa[i][j] * terminos_independientes[j][0]  
+        soluciones.append([solucion])  
     
-    print("Vector de soluciones (X):")
-    print(soluciones)
+    print("\nVector de soluciones (X):")
+    for fila in soluciones:
+        print(fila)
     
     return soluciones
 
 
 def resolver_por_crammer(sistema):
-    # Extraer la matriz de coeficientes y el vector de términos independientes
+    # EXTRAER MATRIZ DE COEFICIENTES Y VECTOR DE TERMINOS
     coeficientes = [ecuacion[:-1] for ecuacion in sistema]  # Excluir el término independiente
-    terminos_independientes = [ecuacion[-1] for ecuacion in sistema]  # Solo el término independiente
+    terminos_independientes = [ecuacion[-1] for ecuacion in sistema]  # VECTOR
     
     print("\nPaso 1: Escribir el sistema en forma matricial AX = B")
     print("Matriz de coeficientes (A):")
+    print("")
     for fila in coeficientes:
         print(fila)
     print("Vector de términos independientes (B):")
+    print("")
     print(terminos_independientes)
     
-    # Calcular el determinante de la matriz de coeficientes
     print("\nPaso 2: Calcular el determinante de A (det(A))")
     det_A = calcular_determinante(coeficientes)
     if det_A is None:
         return None
     
-    print(f"det(A) = {det_A}")
+    print(f"\ndet(A) = {det_A}")
     
     if det_A == 0:
         print("El sistema no tiene solución única (determinante = 0).")
@@ -212,27 +248,22 @@ def resolver_por_crammer(sistema):
     n = len(coeficientes)
     soluciones = []
     
-    # Calcular las soluciones utilizando la regla de Cramer
     print("\nPaso 3: Calcular los determinantes para cada variable")
     for i in range(n):
-        # Crear una copia de la matriz de coeficientes
         matriz_temp = [fila.copy() for fila in coeficientes]
-        
-        # Reemplazar la columna i con el vector de términos independientes
         for j in range(n):
             matriz_temp[j][i] = terminos_independientes[j]
         
-        # Calcular el determinante de la matriz modificada
-        print(f"Matriz modificada para x{i + 1}:")
+        print(f"\nMatriz modificada para x{i + 1}:")
+        print("")
         for fila in matriz_temp:
             print(fila)
         det_temp = calcular_determinante(matriz_temp)
         if det_temp is None:
             return None
         
-        print(f"det(A{i + 1}) = {det_temp}")
+        print(f"\ndet(A{i + 1}) = {det_temp}")
         
-        # Calcular la solución para la variable i
         solucion = det_temp / det_A
         soluciones.append(solucion)
         print(f"x{i + 1} = det(A{i + 1}) / det(A) = {solucion:.2f}")
@@ -243,26 +274,23 @@ def resolver_por_crammer(sistema):
 
 def resolver_por_gauss_jordan(sistema):
     n = len(sistema)
-    
-    # Crear la matriz aumentada
     matriz_aumentada = []
     for fila in sistema:
-        nueva_fila = []  # Crear una nueva fila
+        nueva_fila = []  
         for elemento in fila:
-            nueva_fila.append(elemento)  # Copiar cada elemento de la fila
-        matriz_aumentada.append(nueva_fila)  # Agregar la nueva fila a la matriz aumentada
+            nueva_fila.append(elemento)  # COPIAR CADA ELEMENTO DE LA FILA
+        matriz_aumentada.append(nueva_fila)  # AGREGA LA FILA A LA MATRIZ AUMENTADA
     
     print("\nPaso 1: Escribir el sistema en forma de matriz aumentada [A | B]")
     print("Matriz aumentada:")
     for fila in matriz_aumentada:
         print(fila)
     
-    # Aplicar el método de Gauss-Jordan
     print("\nPaso 2: Aplicar operaciones elementales de fila para obtener la forma RREF")
     for i in range(n):
-        # Hacer que el elemento diagonal sea 1
+        # HACER ELEMENTO DIAGONAL SEA 1
         if matriz_aumentada[i][i] == 0:
-            # Buscar una fila para intercambiar
+            # BUSCA UNA FILA PARA INTERCAMBIAR
             for j in range(i + 1, n):
                 if matriz_aumentada[j][i] != 0:
                     matriz_aumentada[i], matriz_aumentada[j] = matriz_aumentada[j], matriz_aumentada[i]
@@ -274,7 +302,7 @@ def resolver_por_gauss_jordan(sistema):
                 print("El sistema no tiene solución única.")
                 return None
         
-        # Dividir la fila i por el elemento diagonal
+        # DIVIDIR FILA POR ELEMENTO DIAGONAL
         divisor = matriz_aumentada[i][i]
         for j in range(i, n + 1):
             matriz_aumentada[i][j] /= divisor
@@ -282,7 +310,7 @@ def resolver_por_gauss_jordan(sistema):
         for fila in matriz_aumentada:
             print(fila)
         
-        # Hacer ceros en las otras filas
+        # HACER 0 EN LAS OTRAS FILAS
         for k in range(n):
             if k != i:
                 factor = matriz_aumentada[k][i]
@@ -292,7 +320,6 @@ def resolver_por_gauss_jordan(sistema):
                 for fila in matriz_aumentada:
                     print(fila)
     
-    # Extraer las soluciones
     soluciones = [matriz_aumentada[i][n] for i in range(n)]
     
     print("\nPaso 3: Leer las soluciones directamente de la matriz RREF")
@@ -305,12 +332,12 @@ def resolver_por_gauss_jordan(sistema):
 ### CÓDIGO
 
 opcion = 0
-try:
-    while opcion != 3:
+while opcion != 3:
+    try:
         print("\n1. Modelar funciones matemáticas")
         print("2. Resolver sistemas de ecuaciones")
         print("3. Salir")
-        opcion = int(input("Ingrese la opción a realizar: "))
+        opcion = int(input("\nIngrese la opción a realizar: "))
 
         match opcion:
             case 1:
@@ -345,16 +372,15 @@ try:
                                 print("Primero debes crear un sistema de ecuaciones.")
                         case 5:
                             print("Saliendo del programa...")
-                        case _:
-                            print("Opción no válida. Intente de nuevo.")
             case 3:
-                print("Saliendo del programa...")
+                print("\nEl programa ha terminado, Adiós!")
+                print("")
 
-except ValueError:
-    print("Error: Ingrese un número válido.")
-except ZeroDivisionError:
-    print("Error: No se puede dividir entre 0.")
-except Exception as e:
-    print(f"Ha ocurrido un error inesperado: {e}")
-finally:
-    print("\nPrograma terminado")
+    except ValueError:
+        print("Error: Ingrese un número válido.")
+    except ZeroDivisionError:
+        print("Error: No se puede dividir entre 0.")
+    except ImportError:
+        print("Error: No se pudo importar matplotlib. Asegúrese de tenerlo instalado.")
+    except Exception as e:
+        print(f"Ha ocurrido un error inesperado: {e}")

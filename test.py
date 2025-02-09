@@ -41,6 +41,8 @@ def graficar_funciones():
         plt.tight_layout()
         plt.show()
 
+    except ValueError:
+        print("Error, ingrese un número")
     except Exception as e:
         print(f"Error al graficar la función: {e}")
 
